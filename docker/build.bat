@@ -10,7 +10,7 @@ if not defined version (
 
 cd ..
 
-call docker build -f ./Dockerfile -t tunnela/nodeodm:!version! -t tunnela/nodeodm:latest .
+call docker build -f ./Dockerfile -t tunnela/nodeodm:!version! .
 
 cd ./docker
 
@@ -21,5 +21,6 @@ if not !publish! equ yes if not !publish! equ y (
 )
 
 call docker login
+call docker tag tunnela/nodeodm:!version! tunnela/nodeodm:latest
 call docker push tunnela/nodeodm:!version!
 call docker push tunnela/nodeodm:latest

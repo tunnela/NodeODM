@@ -8,7 +8,7 @@ fi
 
 cd ..
 
-docker build -f ./Dockerfile -t tunnela/nodeodm:$version -t tunnela/nodeodm:latest .
+docker build -f ./Dockerfile -t tunnela/nodeodm:$version .
 
 cd ./docker
 
@@ -20,5 +20,6 @@ then
 fi
 
 docker login
+docker tag tunnela/nodeodm:$version tunnela/nodeodm:latest
 docker push tunnela/nodeodm:$version
 docker push tunnela/nodeodm:latest
