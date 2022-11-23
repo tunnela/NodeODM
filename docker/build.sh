@@ -1,16 +1,53 @@
-read -p "Give version number for the new docker image: " version
+#!/bin/bash
+set -e
+
+if [[ ! -f "build.sh" ]]
+then
+    echo "\n\nPlease run the \`sh build.sh\` command inside the \`docker\` folder!\n\n"
+    exit
+fi
+
+pass=true
+
+if ! command -v npm &> /dev/null
+then
+    echo "\n\nPlease install \`npm\` command line tool before running this script!\n\n"
+    pass=false
+fi
+
+if ! docker info > /dev/null 2>&1
+then
+    echo "\n\nPlease start the docker engine!\n\n"
+    pass=false
+fi
+
+if [ "$pass" = false ]
+then
+    exit
+fi
+
+read -p "Give version number for the new docker image release or press ENTER to create a local test image: " version
 
 if [ "$version" = "" ]
 then
-    echo "Please give a version number!"
-    exit
+    version=local
 fi
 
 cd ..
 
 docker build -f ./Dockerfile -t tunnela/nodeodm:$version .
 
+if [ "$version" = "local" ]
+then
+    call npm install --production
+fi
+
 cd ./docker
+
+if [ "$version" = "local" ]
+then
+    exit
+fi
 
 read -p "Would you like to publish the new docker image? [y|n]: " publish
 
