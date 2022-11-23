@@ -5,7 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "winbundle": "node scripts/winbundle.js"
+    "winbundle": "node scripts/winbundle.js",
+    "docker": "npx cross-os docker-os",
+    "docker-os": {
+      "win32": "cd .\\docker && .\\build.bat && cd ..",
+      "darwin": "cd ./docker && sh build.sh && cd ..",
+      "linux": "cd ./docker && sh build.sh && cd .."
+    }
   },
   "repository": {
     "type": "git",
