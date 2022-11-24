@@ -38,7 +38,13 @@ if not defined version (
 
 cd ..
 
-call docker build -f ./Dockerfile -t tunnela/nodeodm:!version! .
+set flags=""
+
+if !version! equ local (
+    set flags="--label nodeodm.path=\"%cd%\""
+)
+
+call docker build %flags% -f ./Dockerfile -t tunnela/nodeodm:!version! .
 
 if !version! equ local (
     call npm install --production

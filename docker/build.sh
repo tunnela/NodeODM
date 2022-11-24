@@ -35,11 +35,18 @@ fi
 
 cd ..
 
-docker build -f ./Dockerfile -t tunnela/nodeodm:$version .
+flags=""
 
 if [ "$version" = "local" ]
 then
-    call npm install --production
+    flags="--label nodeodm.path=\"$(pwd)\""
+fi
+
+docker build $flags -f ./Dockerfile -t tunnela/nodeodm:$version .
+
+if [ "$version" = "local" ]
+then
+    npm install --production
 fi
 
 cd ./docker
