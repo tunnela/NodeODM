@@ -41,7 +41,7 @@ cd ..
 set flags=""
 
 if !version! equ local (
-    set flags="--label nodeodm.path=\"%cd%\""
+    set flags="--label \"nodeodm.path=%cd%\""
 )
 
 call docker build %flags% -f ./Dockerfile -t tunnela/nodeodm:!version! .

@@ -35,14 +35,14 @@ fi
 
 cd ..
 
-flags=""
+flags=()
 
 if [ "$version" = "local" ]
 then
-    flags="--label nodeodm.path=\"$(pwd)\""
+    flags=(--label "nodeodm.path=$(pwd)")
 fi
 
-docker build $flags -f ./Dockerfile -t tunnela/nodeodm:$version .
+docker build ${flags[@]} -f ./Dockerfile -t tunnela/nodeodm:$version .
 
 if [ "$version" = "local" ]
 then
