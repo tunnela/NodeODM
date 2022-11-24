@@ -20,7 +20,7 @@ if not %ERRORLEVEL% equ 0 (
     set pass=false
 )
 
-docker info >nul 2>nul
+call docker info >nul 2>nul
 if not %ERRORLEVEL% equ 0 (
     call npx echo-cli "\n\nPlease start the docker engine!\n\n"
     set pass=false
