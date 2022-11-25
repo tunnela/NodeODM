@@ -8,9 +8,9 @@
     "winbundle": "node scripts/winbundle.js",
     "docker": "npx cross-os docker-os",
     "docker-os": {
-      "win32": "cd .\\docker && .\\build.bat && cd ..",
-      "darwin": "cd ./docker && sh build.sh && cd ..",
-      "linux": "cd ./docker && sh build.sh && cd .."
+      "win32": ".\\docker\\build.bat",
+      "darwin": "sh ./docker/build.sh",
+      "linux": "sh ./docker/build.sh"
     }
   },
   "repository": {

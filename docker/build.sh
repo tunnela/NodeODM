@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+cd "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+
 if [[ ! -f "build.sh" ]]
 then
     echo "\n\nPlease run the \`sh build.sh\` command inside the \`docker\` folder!\n\n"

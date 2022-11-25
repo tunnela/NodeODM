@@ -1,6 +1,8 @@
 @echo off
 setlocal enableDelayedExpansion
 
+cd %~dp0
+
 if not exist build.bat (
     call npx echo-cli "\n\nPlease run the \`build.bat\` command inside the \`docker\` folder!\n\n"
     exit /B
