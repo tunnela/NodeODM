@@ -22,7 +22,7 @@ if not %ERRORLEVEL% equ 0 (
     set pass=false
 )
 
-docker info >nul 2>nul
+call docker info >nul 2>nul
 if not %ERRORLEVEL% equ 0 (
     call npx echo-cli "\n\nPlease start the docker engine!\n\n"
     set pass=false
@@ -40,16 +40,12 @@ if not defined version (
 
 cd ..
 
-set flags=""
-
-if !version! equ local (
-    set flags="--label \"nodeodm.path=%cd%\""
-)
-
-call docker build %flags% -f ./Dockerfile -t tunnela/nodeodm:!version! .
-
 if !version! equ local (
     call npm install --production
+
+    call docker build --label "nodeodm.path=%cd%" -f ./Dockerfile -t tunnela/nodeodm:!version! .
+) else (
+    call docker build -f ./Dockerfile -t tunnela/nodeodm:!version! .
 )
 
 cd ./docker
