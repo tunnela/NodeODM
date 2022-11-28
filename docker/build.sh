@@ -41,7 +41,7 @@ if [ "$version" = "local" ]
 then
     npm install --production
     
-    docker build --label "nodeodm.path=$(pwd)" -f ./Dockerfile -t tunnela/nodeodm:$version .
+    docker build --label "nodeodm.path=$(pwd)" -f ./Dockerfile.local -t tunnela/nodeodm:$version .
 else 
     docker build -f ./Dockerfile -t tunnela/nodeodm:$version .
 fi

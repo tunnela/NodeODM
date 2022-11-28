@@ -43,7 +43,7 @@ cd ..
 if !version! equ local (
     call npm install --production
 
-    call docker build --label "nodeodm.path=%cd%" -f ./Dockerfile -t tunnela/nodeodm:!version! .
+    call docker build --label "nodeodm.path=%cd%" -f ./Dockerfile.local -t tunnela/nodeodm:!version! .
 ) else (
     call docker build -f ./Dockerfile -t tunnela/nodeodm:!version! .
 )
