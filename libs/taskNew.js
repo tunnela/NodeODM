@@ -387,6 +387,12 @@ module.exports = {
 
             async.series([
                 cb => {
+                    fs.stat(srcPath, (err, stat) => {
+                        if (err && err.code === 'ENOENT') fs.mkdir(srcPath, undefined, cb);
+                        else cb(); // Dir already exists
+                    });
+                },
+                cb => {
                     // Basic path check
                     fs.exists(srcPath, exists => {
                         if (exists) cb();
