@@ -142,6 +142,7 @@ config.s3UploadEverything = argv.s3_upload_everything || fromConfigFile("s3Uploa
 config.s3IgnoreSSL = argv.s3_ignore_ssl || fromConfigFile("s3IgnoreSSL", false);
 config.maxConcurrency = parseInt(argv.max_concurrency || fromConfigFile("maxConcurrency", 0));
 config.maxRuntime = parseInt(argv.max_runtime || fromConfigFile("maxRuntime", -1));
+config.allowedDownloadableAssets = ['**/*'];
 
 // Detect 7z availability
 config.has7z = spawnSync(apps.sevenZ, ['--help']).status === 0;

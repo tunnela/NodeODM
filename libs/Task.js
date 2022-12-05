@@ -23,6 +23,7 @@ const os = require('os');
 const assert = require('assert');
 const logger = require('./logger');
 const fs = require('fs');
+const glob = require("glob");
 const path = require('path');
 const rmdir = require('rimraf');
 const odmRunner = require('./odmRunner');
@@ -206,7 +207,6 @@ module.exports = class Task{
         }else{
             return false; // Invalid
         }
-        
         return path.join(this.getProjectFolderPath(), filename);
     }
 
@@ -223,6 +223,35 @@ module.exports = class Task{
     // Get file name from file path
     getFileNameFromFilePath(filePath){
         return filePath.split('/')[filePath.split('/').length - 1]
+    }
+
+    // Get the paths of outputted assets
+    getAllowedAssetPaths(pattern){
+        function arrayIntersection(firstArray, secondArray) {
+            return firstArray.filter(path => secondArray.includes(path))
+        }
+        function trimPaths(array) {
+            return array.map(path => path.split('/').splice(2, path.split('/').length).join('/'))
+        }
+        function filterOutFolderPaths(path) {
+            return /(?:\.([^.]+))?$/.exec(path)[1]
+        }
+        const allowedAssetPaths = this.getAssetPaths(config.allowedDownloadableAssets);
+        const requestedAssetPaths = this.getAssetPaths(pattern);
+        return trimPaths(arrayIntersection(allowedAssetPaths, requestedAssetPaths)).filter(filterOutFolderPaths);
+    }
+
+    getAssetPaths(pattern){
+        if (typeof pattern === 'undefined') {
+            return glob.sync(this.getProjectFolderPath() + '/**/*', {});
+        } else if (typeof pattern === 'string') {
+            return glob.sync(this.getProjectFolderPath() + '/' + pattern.replace(/^\//g, ''), {});
+        } else if (Array.isArray(pattern)) {
+            return pattern.map(patternString => this.getAssetPaths(patternString)).flat()
+        } else {
+            logger.error(`Unable to get asset paths with provided pattern: ${pattern}`);
+            return;
+        }
     }
 
     // Deletes files and folders related to this task
@@ -712,6 +741,7 @@ module.exports = class Task{
 
             let json = this.getInfo();
             json.images = images;
+            json.availableAssets = this.getAllowedAssetPaths();
 
             hooks.forEach(hook => {
                 if (hook && hook.length > 3){
