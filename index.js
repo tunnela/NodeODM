@@ -496,12 +496,12 @@ app.get('/task/:uuid/output', authCheck, getTaskFromUuid, (req, res) => {
  *          schema:
  *            $ref: '#/definitions/Error'
  */
-app.get('/task/:uuid/download/:asset', authCheck, getTaskFromUuid, (req, res) => {
-    let asset = req.params.asset !== undefined ? req.params.asset : "all.zip";
-    let filePath = req.task.getAssetsArchivePath(asset);
+app.get('/task/:uuid/download/:asset*', authCheck, getTaskFromUuid, (req, res) => {
+    let filePath = req.task.getAssetPathFromRequest(req);
+    let fileName = req.task.getFileNameFromFilePath(filePath);
     if (filePath) {
         if (fs.existsSync(filePath)) {
-            res.setHeader('Content-Disposition', `attachment; filename=${asset}`);
+            res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
             res.setHeader('Content-Type', mime.getType(filePath));
             res.setHeader('Content-Length', fs.statSync(filePath).size);
 

@@ -210,6 +210,21 @@ module.exports = class Task{
         return path.join(this.getProjectFolderPath(), filename);
     }
 
+    // Get asset path from request
+    getAssetPathFromRequest({ params }){
+        if (params) {
+            const {'0': wildcard, asset } = params;
+            return path.join(this.getProjectFolderPath(), `${asset}${wildcard}`);
+        } else {
+            return '';
+        }
+    }
+
+    // Get file name from file path
+    getFileNameFromFilePath(filePath){
+        return filePath.split('/')[filePath.split('/').length - 1]
+    }
+
     // Get the paths of outputted assets
     getAllowedAssetPaths(pattern){
         function arrayIntersection(firstArray, secondArray) {
