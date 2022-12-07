@@ -23,7 +23,7 @@ const os = require('os');
 const assert = require('assert');
 const logger = require('./logger');
 const fs = require('fs');
-const glob = require("glob");
+const glob = require('glob');
 const path = require('path');
 const rmdir = require('rimraf');
 const odmRunner = require('./odmRunner');
@@ -199,6 +199,16 @@ module.exports = class Task{
         return path.join(Directories.data, this.uuid);
     }
 
+    // Trim paths in array to relative paths for the task
+    trimPathsToRelativePaths(array) {
+        return array.map(path => path.split('/').splice(2, path.split('/').length).join('/'));
+    }
+
+    // Compare two arrays and return intersection of those arrays
+    getArrayIntersection(firstArray, secondArray) {
+        return firstArray.filter(path => secondArray.includes(path));
+    }
+
     // Get the path of the archive where all assets
     // outputted by this task are stored.
     getAssetsArchivePath(filename){
@@ -210,11 +220,18 @@ module.exports = class Task{
         return path.join(this.getProjectFolderPath(), filename);
     }
 
-    // Get asset path from request
-    getAssetPathFromRequest({ params }){
+    // Get asset path from request that is part of the allowed path pattern provided as parameter
+    getAllowedAssetPathFromRequest(allowedPattern, { params }){
         if (params) {
+            const allowedAssetPaths = this.trimPathsToRelativePaths(this.getAssetPaths(allowedPattern));
             const {'0': wildcard, asset } = params;
-            return path.join(this.getProjectFolderPath(), `${asset}${wildcard}`);
+            const relativeFilePath = `${asset}${wildcard}`;
+            if (this.getArrayIntersection(allowedAssetPaths, [relativeFilePath]).length > 0) {
+                const filePath = path.join(this.getProjectFolderPath(), relativeFilePath);
+                return filePath;
+            } else {
+                return '';
+            }
         } else {
             return '';
         }
@@ -222,32 +239,28 @@ module.exports = class Task{
 
     // Get file name from file path
     getFileNameFromFilePath(filePath){
-        return filePath.split('/')[filePath.split('/').length - 1]
+        const fileName = filePath.split('/')[filePath.split('/').length - 1];
+        return fileName;
     }
 
-    // Get the paths of outputted assets
-    getAllowedAssetPaths(pattern){
-        function arrayIntersection(firstArray, secondArray) {
-            return firstArray.filter(path => secondArray.includes(path))
-        }
-        function trimPaths(array) {
-            return array.map(path => path.split('/').splice(2, path.split('/').length).join('/'))
-        }
+    // Get the paths of outputted assets that are part of the allowed path pattern provided as parameter
+    getAllowedAssetPaths(allowedPattern, pattern){
         function filterOutFolderPaths(path) {
-            return /(?:\.([^.]+))?$/.exec(path)[1]
+            return /(?:\.([^.]+))?$/.exec(path)[1];
         }
-        const allowedAssetPaths = this.getAssetPaths(config.allowedDownloadableAssets);
+        const allowedAssetPaths = this.getAssetPaths(allowedPattern);
         const requestedAssetPaths = this.getAssetPaths(pattern);
-        return trimPaths(arrayIntersection(allowedAssetPaths, requestedAssetPaths)).filter(filterOutFolderPaths);
+        return this.trimPathsToRelativePaths(this.getArrayIntersection(allowedAssetPaths, requestedAssetPaths)).filter(filterOutFolderPaths);
     }
 
+    // Get asset paths based on the provided path pattern
     getAssetPaths(pattern){
         if (typeof pattern === 'undefined') {
             return glob.sync(this.getProjectFolderPath() + '/**/*', {});
         } else if (typeof pattern === 'string') {
             return glob.sync(this.getProjectFolderPath() + '/' + pattern.replace(/^\//g, ''), {});
         } else if (Array.isArray(pattern)) {
-            return pattern.map(patternString => this.getAssetPaths(patternString)).flat()
+            return pattern.map(patternString => this.getAssetPaths(patternString)).flat();
         } else {
             logger.error(`Unable to get asset paths with provided pattern: ${pattern}`);
             return;
@@ -741,7 +754,7 @@ module.exports = class Task{
 
             let json = this.getInfo();
             json.images = images;
-            json.availableAssets = this.getAllowedAssetPaths();
+            json.availableAssets = this.getAllowedAssetPaths(config.allowedDownloadableAssets);
 
             hooks.forEach(hook => {
                 if (hook && hook.length > 3){
