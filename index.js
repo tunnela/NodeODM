@@ -497,7 +497,7 @@ app.get('/task/:uuid/output', authCheck, getTaskFromUuid, (req, res) => {
  *            $ref: '#/definitions/Error'
  */
 app.get('/task/:uuid/download/:asset*', authCheck, getTaskFromUuid, (req, res) => {
-    let filePath = req.task.getAssetPathFromRequest(req);
+    let filePath = req.task.getAllowedAssetPathFromRequest(config.allowedDownloadableAssets, req);
     let fileName = req.task.getFileNameFromFilePath(filePath);
     if (filePath) {
         if (fs.existsSync(filePath)) {
@@ -511,6 +511,7 @@ app.get('/task/:uuid/download/:asset*', authCheck, getTaskFromUuid, (req, res) =
             res.json({ error: "Asset not ready" });
         }
     } else {
+        logger.error("Invalid asset");
         res.json({ error: "Invalid asset" });
     }
 });
